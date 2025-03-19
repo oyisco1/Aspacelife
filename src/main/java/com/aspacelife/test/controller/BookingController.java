@@ -4,11 +4,15 @@ import com.aspacelife.test.model.Booking;
 import com.aspacelife.test.model.Space;
 import com.aspacelife.test.model.Users;
 import com.aspacelife.test.service.BookingService;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 
 @RestController
 @RequestMapping("/api")
@@ -20,20 +24,24 @@ public class BookingController {
         this.bookingService = bookingService;
     }
     @GetMapping("/users")
-    public Flux<Users> getAllUsers(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue =  "10") int size){
-        return  this.bookingService.getAllUsers().skip((long) page * size).take(size);
+    public Flux<Users> getAllUsers(){
+        return  this.bookingService.getAllUsers();
     }
     @GetMapping("/spaces")
-    public Flux<Space> getSpaces(@RequestParam(required =  false , defaultValue = "false") boolean available ,@RequestParam(defaultValue = "0")
-            int page, @RequestParam(defaultValue =  "10") int size){
-        return  this.bookingService.getAllSpace(available).skip((long) page * size).take(size);
+    public Flux<Space> getSpaces(@RequestParam(required =  false , defaultValue = "false") boolean available){
+        return  this.bookingService.getAllSpace(available);
     }
+
+
     //get booking
-    @GetMapping("/bookings")
-    public Flux<Booking> getAllBooking(@RequestParam LocalDateTime startDate, @RequestParam LocalDateTime endDate,
-    @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue =  "10") int size){
-        return  this.bookingService.getAllBooking(startDate, endDate, startDate !=null && endDate !=null).skip((long) page * size).take(size);
+    @GetMapping(value = "/bookings", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<Booking> getAllBookings(@RequestParam(required = false) LocalDate startDate,
+                                        @RequestParam(required = false) LocalDate endDate
+                                       ) {
+        return bookingService.getAllBooking(startDate, endDate, startDate !=null && endDate !=null)
+                .sort((Comparator<? super Booking>) Sort.by(Sort.Direction.DESC, "date"));
     }
+
     @PostMapping
     public Mono<Booking> createBooking(@RequestBody Booking  booking){
         return  this.bookingService.createBooking(booking);
@@ -43,12 +51,12 @@ public class BookingController {
         return  this.bookingService.updateBooking(id, status);
     }
     @GetMapping("/users/{id}")
-    public Flux<Booking> getAllBookingByUser(@PathVariable String id, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue =  "10") int size){
-        return  this.bookingService.getAllBookingByUser(id).skip((long) page * size).take(size);
+    public Flux<Booking> getAllBookingByUser(@PathVariable String id){
+        return  this.bookingService.getAllBookingByUser(id);
     }
     @GetMapping("/spaces/{id}")
-    public Flux<Booking> getBookingBySpaceId(@PathVariable String id, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue =  "10") int size){
-        return  this.bookingService.getAllBookingBySpace(id).skip((long) page * size).take(size);
+    public Flux<Booking> getBookingBySpaceId(@PathVariable String id){
+        return  this.bookingService.getAllBookingBySpace(id);
     }
 
     @DeleteMapping("/{id}")

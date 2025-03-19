@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,9 +31,9 @@ public class BookingRepository {
                 space.isAvailable());
     }
 //filtering booking by date range
-    public Flux<Booking> getAllBookings(LocalDateTime startDate, LocalDateTime endDate, boolean filterByDateRange){
+    public Flux<Booking> getAllBookings(LocalDate startDate, LocalDate endDate, boolean filterByDateRange){
         return  Flux.fromIterable(bookings.values()).sort((Comparator.comparing(Booking::getStartTime).reversed())).
-                filter(booking -> ! filterByDateRange || (booking.getStartTime().isAfter(startDate) && booking.getEndTime().isBefore(endDate)));
+                filter(booking -> ! filterByDateRange || (booking.getStartTime().isAfter(ChronoLocalDateTime.from(startDate)) && booking.getEndTime().isBefore(ChronoLocalDateTime.from(endDate))));
 
 
     }

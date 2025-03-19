@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -26,7 +27,7 @@ public class BookingService {
         return  this.bookingRepository.getAllSpace(filterAvailable);
     }
     //get all booking using flux
-    public Flux<Booking> getAllBooking(LocalDateTime startDate, LocalDateTime endDate, boolean filterByDateRange){
+    public Flux<Booking> getAllBooking(LocalDate startDate, LocalDate endDate, boolean filterByDateRange){
         return  this.bookingRepository.getAllBookings(startDate,endDate,filterByDateRange);
     }
     public Flux<Booking> getAllBookingByUser(String userId){
